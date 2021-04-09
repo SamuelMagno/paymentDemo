@@ -1,0 +1,30 @@
+version: '3'
+
+services: 
+  laravel-app:
+    container_name: laravel-app
+    build: "./dockerfiles/php"
+    ports: 
+      - "8080:80"
+    volumes: 
+      - ./:/usr/share/nginx
+    networks: 
+      - app-network
+
+  mysql-app:
+    container_name: mysql-app
+    image: mysql:5.7.22
+    command: --innodb-use-native-aio=0
+    ports: 
+      - 3306:3306
+    environment: 
+      MYSQL_DATABASE: laravel
+      MYSQL_ROOT_PASSWORD: laravel
+    volumes:
+      - .docker/dbdata:/var/lib/mysql
+    networks: 
+      - app-network
+
+networks: 
+  app-network:
+    driver: bridge
