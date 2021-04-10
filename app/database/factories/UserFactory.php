@@ -26,7 +26,9 @@ class UserFactory extends Factory
             //TODO make seeder
             'name' => $this->faker->name,
             'email' => $this->faker->unique()->safeEmail,
-            'tax_identification'
+            'tax_identification' => rand(10000000000, 1000000000),
+            'wallet' => rand(1, 500),
+            'isShopkeeper' => mt_rand(0, 1),
         ];
     }
 }

@@ -13,11 +13,5 @@ use App\Http\Controllers\PaymentController;
 |
 */
 
-Route::get('/', function () {
-    return response(json_encode(['status'=> 'Transaction service is up']), 200)
-                    ->header('Content-Type', 'application/json');
-});
-
-
 
 

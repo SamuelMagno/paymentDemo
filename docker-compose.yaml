@@ -7,6 +7,9 @@ services:
     volumes:
         - paymentdemo.mysql:/var/lib/mysql
         - ./database/conf:/etc/mysql/conf.d
+    environment:
+      MYSQL_DATABASE: laravel
+      MYSQL_ROOT_PASSWORD: laravel
     ports:
         - "3306:3306"
 

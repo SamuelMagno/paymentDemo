@@ -26,6 +26,7 @@ class CreatePaymentsTable extends Migration
                 ->onDelete('cascade');
 
             $table->decimal('value',9,2);
+            $table->string('status');
             $table->timestamps();
         });
     }

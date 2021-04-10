@@ -16,20 +16,4 @@ use App\Http\Controllers\PaymentController;
 |
 */
 
-Route::get('/transaction', 'PaymentController@makeTransaction');
-
-
-{
-    payer: {
-        document:
-        account:
-        branch
-    },
-    beneficiary: {
-        document:
-        account:
-        branch
-    },
-    value:
-    request_date:
-}
+Route::post('/payment', 'PaymentController@makePayment');
