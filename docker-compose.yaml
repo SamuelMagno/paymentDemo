@@ -17,9 +17,6 @@ services:
     command: --innodb-use-native-aio=0
     ports: 
       - 3306:3306
-    environment: 
-      MYSQL_DATABASE: laravel
-      MYSQL_ROOT_PASSWORD: laravel
     volumes:
       - .docker/dbdata:/var/lib/mysql
     networks: 
