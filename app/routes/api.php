@@ -16,4 +16,5 @@ use App\Http\Controllers\PaymentController;
 |
 */
 
-Route::post('/payment', 'PaymentController@makePayment');
+Route::post('/payment', 'PaymentController@makePayment')->name('makePayment');
+Route::put('users/{id}', 'UserController@update')->name('updateUser');

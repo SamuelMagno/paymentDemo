@@ -10,6 +10,11 @@ class UserController extends Controller
     public function update(Request $request, $id){
         $user = User::find($id);
 
-        $userData = $request
+        $userData = $request->all();
+
+        $user->update($userData);
+
+        return response()->json($user, 200)
+            ->header('Content-Type', 'application/json');
     }
 }
