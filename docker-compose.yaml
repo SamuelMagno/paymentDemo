@@ -12,6 +12,8 @@ services:
       MYSQL_ROOT_PASSWORD: laravel
     ports:
         - "3306:3306"
+    networks:
+      - network-paymentdemo
 
   webserver:
     image: nginx:alpine
@@ -24,6 +26,8 @@ services:
       - "8080:80"
     links:
       - php-fpm
+    networks:
+      - network-paymentdemo
 
   php-fpm:
     build: phpdocker/php-fpm
@@ -34,6 +38,8 @@ services:
       - ./phpdocker/php-fpm/php-ini-overrides.ini:/etc/php/7.4/fpm/conf.d/99-overrides.ini
     links:
       - mysql
+    networks:
+      - network-paymentdemo
   
 networks: 
   network-paymentdemo:

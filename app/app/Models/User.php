@@ -11,7 +11,7 @@ class User extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'tax_identification', 'email', 'wallet', 'isShopkeeper'];
+    protected $fillable = ['id', 'name', 'tax_identification', 'email', 'wallet', 'isShopkeeper'];
 
     public function paymentsPayer(){
         return $this->hasMany(Payment::class, 'payer');

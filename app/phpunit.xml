@@ -18,6 +18,10 @@
         </include>
     </coverage>
     <php>
+        <env name="DB_HOST" value="app-mysql"/>
+        <env name="DB_PORT" value="3306"/>
+        <env name="DB_DATABASE" value="laraveltest"/>
+
         <server name="APP_ENV" value="testing"/>
         <server name="BCRYPT_ROUNDS" value="4"/>
         <server name="CACHE_DRIVER" value="array"/>
