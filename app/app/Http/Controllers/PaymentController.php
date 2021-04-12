@@ -7,92 +7,46 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 
 use App\Models\User;
-use App\Models\Payment;
+use App\Services\PaymentService;
 
 class PaymentController extends Controller
 {
     const AUTHORIZED = "Autorizado";
+    const SENT = "Enviado";
+
     public function makePayment(Request $request){
+        try {
+            $data = $request->all();
 
-        $data = $request->all();
+            $value = $data['value'];
+            if (empty($value)){
+                throw new \Exception ('Invalid value', 400);
+            }
 
-        $payer = User::find($data['payer']);
+            $payer = User::find($data['payer']);
+            if (empty($payer)) {
+                throw new \Exception ('Payer not found', 404);
+            }
 
-        if ($payer['isShopkeeper']){
-            return response()->json(["message"=>"Shopkeepers cannot make transfers"], 400)
-                ->header('Content-Type', 'application/json');
+            $payee = User::find($data['payee']);
+            if (empty($payee)) {
+                throw new \Exception ('Payee not found', 404);
+            }
+
+            $paymentService = new PaymentService();
+            $payment = $paymentService->createPayment($payer['id'], $payee['id'], $value);
+
+            $paymentService->executePayment($payment);
+            
+            $paymentService->paymentDone($payment);
+
+            return response()->json($payment, 200);
+        } catch(\Exception $e) { 
+            //Validate Http code
+            $paymentService->paymentFail($payment);
+            return response()->json([
+                'message' => $e->getMessage()
+            ], $e->getCode());
         }
-
-        $payee = User::findOrFail($data['payee']);
-        $value = $data['value'];
-
-        $paymentData = [
-            "payer" => $payer['id'],
-            "payee" => $payee['id'],
-            "value" => $value,
-            "status" => "New",
-        ];
-        $payment = new Payment($paymentData);
-
-        $payment->save();
-        $payment->fresh();
-        
-        if($payer['wallet'] < $value) {
-
-            $paymentData['status'] = "Failed";
-            $payment->update($paymentData);
-
-            return response()->json(["message"=>$paymentData], 400)
-                ->header('Content-Type', 'application/json');
-        }
-        
-        DB::beginTransaction();
-
-        if(!$this->paymentAuthorization($payment)){
-            return response()->json(["message"=>"payment not authorized"], 400)
-                ->header('Content-Type', 'application/json');
-        }
-        try{
-            $payer['wallet'] -= $value;
-            $payer->update();
-
-            $payee['wallet'] += $value;
-            $payee->update();
-
-            $paymentData['status'] = "Done";
-            $payment->update($paymentData);
-
-            return response()->json($payment, 200)->header('Content-Type', 'application/json');
-        
-        } catch(Exception $e) {
-            DB::rollback();
-            return response()->json($e, 400)
-                ->header('Content-Type', 'application/json');
-        }
-        DB::commit();
-    }
-
-    private function paymentAuthorization($payment){
-        
-        $url = "https://run.mocky.io/v3/8fafdd68-a090-496f-8c9a-3442cf30dae6";
-        $curl = curl_init();
-
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => $url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_TIMEOUT => 30000,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "GET",
-            CURLOPT_HTTPHEADER => array(
-                'Content-Type: application/json',
-            ),
-        ));
-
-        $response = curl_exec($curl);
-        $responseObj = json_decode($response);
-        curl_close($curl);
-
-        return $responseObj->message == self::AUTHORIZED;
     }
 }

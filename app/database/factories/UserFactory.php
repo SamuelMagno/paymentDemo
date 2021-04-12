@@ -23,7 +23,6 @@ class UserFactory extends Factory
     public function definition()
     {
         return [
-            //TODO make seeder
             'name' => $this->faker->name,
             'email' => $this->faker->unique()->safeEmail,
             'tax_identification' => rand(10000000000, 1000000000),
