@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\DB;
 
 use App\Models\User;
 use App\Services\PaymentService;
@@ -15,13 +14,17 @@ class PaymentController extends Controller
     const SENT = "Enviado";
 
     public function makePayment(Request $request){
+        
+        $request->validate([
+            'value' => ['required', 'numeric', 'min:0.01'],
+            'payer' => ['required', 'integer', 'min:1'],
+            "payee" => ['required', 'integer', 'min:1']
+        ]);
+
         try {
             $data = $request->all();
 
             $value = $data['value'];
-            if (empty($value)){
-                throw new \Exception ('Invalid value', 400);
-            }
 
             $payer = User::find($data['payer']);
             if (empty($payer)) {
@@ -42,11 +45,19 @@ class PaymentController extends Controller
 
             return response()->json($payment, 200);
         } catch(\Exception $e) { 
-            //Validate Http code
-            $paymentService->paymentFail($payment);
+
+            $exceptionCode = $e->getCode();
+            if (!in_array($exceptionCode, array_keys(Response::$statusTexts))) {
+                $exceptionCode = 500;
+            }
+
+            if (!empty($paymentService)) {
+                $paymentService->paymentFail($payment);
+            }
+
             return response()->json([
                 'message' => $e->getMessage()
-            ], $e->getCode());
+            ], $exceptionCode);
         }
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use App\Models\Payment;
 use App\Rules\Authorization;
@@ -51,6 +52,8 @@ class PaymentService
                 throw new \Exception ('Unauthorized payment', 400);
             }
 
+            DB::beginTransaction();
+
             $userService = new UserService();
             
             $payer = $userService->subtractWallet($payer, $value);
@@ -59,11 +62,14 @@ class PaymentService
             $payee = $userService->addWallet($payee, $value);
             $userService->updateUser($payee);
 
+            DB::commit();
+            
             $notificationService = new NotificationService();
             $notificationService->sendNotification($payment);
 
         } catch(\Exception $e){
-            throw new \Exception (' cannot execute payment', 400);
+            DB::rollBack();
+            throw new \Exception ($e->getMessage(), 400);
         }
     }
 

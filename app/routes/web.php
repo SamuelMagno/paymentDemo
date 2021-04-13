@@ -13,8 +13,4 @@ use App\Http\Controllers\PaymentController;
 |
 */
 
-Route::get('/', function() {
-    return response()->json(["message"=>"Payment service is up"], 200)
-                ->header('Content-Type', 'application/json');
-});
 
