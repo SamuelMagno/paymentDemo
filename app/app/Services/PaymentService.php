@@ -31,7 +31,7 @@ class PaymentService
         }
     }
 
-    public function executePayment($payment)
+    public function executePayment(Payment $payment)
     {
         try{
             $payer = User::find($payment['payer']);
@@ -73,23 +73,31 @@ class PaymentService
         }
     }
 
-    public function paymentFail($payment)
+    public function paymentFail(Payment $payment)
     {
         try{
-            $updatedPayment = Payment::find($payment['id']);
-            $updatedPayment['status'] = self::FAILED;
-            $updatedPayment->update();
+            $paymentInfo = [
+                "payer" => $payment['payer'],
+                "payee" => $payment['payee'],
+                "value" => $payment['value'],
+                "status" => self::FAILED,
+            ];
+            $payment->update($paymentInfo);
         } catch(\Exception $e) {
             throw new \Exception ('Cannot update payment', 500);
         }
     }
 
-    public function paymentDone($payment)
+    public function paymentDone(Payment $payment)
     {
         try{
-            $updatedPayment = Payment::find($payment['id']);
-            $updatedPayment['status'] = self::DONE;
-            $updatedPayment->update();
+            $paymentInfo = [
+                "payer" => $payment['payer'],
+                "payee" => $payment['payee'],
+                "value" => $payment['value'],
+                "status" => self::DONE,
+            ];
+            $payment->update($paymentInfo);
         } catch(\Exception $e) {
             throw new \Exception ('Cannot update payment', 500);
         }

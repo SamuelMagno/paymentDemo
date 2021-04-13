@@ -7,6 +7,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use App\Models\User;
+use App\Services\PaymentService;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class PaymentTest extends TestCase
@@ -27,12 +28,16 @@ class PaymentTest extends TestCase
             "payee" => "2"
         ];
 
-        $response = $this->post('/api/payment', $data);
+        $response = $this->postJson('/api/payment', $data);
 
-        $response->assertStatus(400);
+        $response
+        ->assertStatus(400)
+        ->assertJson([
+            'message' => 'Shopkeepers cannot make transfers',
+        ]);
     }
 
-    public function test_insufficient_balance()
+    public function test_insufficient_funds()
     {
         $this->createUsers();
         $data = [
@@ -41,9 +46,13 @@ class PaymentTest extends TestCase
             "payee" => "2"
         ];
 
-        $response = $this->post('/api/payment', $data);
+        $response = $this->postJson('/api/payment', $data);
 
-        $response->assertStatus(400);
+        $response
+            ->assertStatus(400)
+            ->assertJson([
+                'message' => 'Insufficient Funds',
+            ]);
     }
 
     public function test_payment_done()
@@ -56,9 +65,13 @@ class PaymentTest extends TestCase
             "payee" => "1"
         ];
 
-        $response = $this->post('/api/payment', $data);
+        $response = $this->postJson('/api/payment', $data);
 
-        $response->assertStatus(200);
+        $response
+            ->assertStatus(200)
+            ->assertJson([
+                'status' => PaymentService::DONE,
+            ]);
     }
 
     private function createUsers()

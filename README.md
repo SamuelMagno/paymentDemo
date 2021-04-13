@@ -11,7 +11,7 @@ Inside the root folder of the project, using any terminal, run the command line 
 
 `docker-compose up -d`
 
-##SETUP ENVIRONMENT
+## SETUP ENVIRONMENT
 
 Copy the `/app/.env.example` file to a new file named ".env"
 
@@ -63,3 +63,7 @@ Run the commands below to create the test database
 
 `docker exec -it app-php-fpm bash -c "php artisan db:create laraveltest"`
 `docker exec -it app-php-fpm bash -c "php artisan migrate --database=test"`
+
+## RUN TEST
+
+`docker exec -it app-php-fpm bash -c "php artisan test"`
