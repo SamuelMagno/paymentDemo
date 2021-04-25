@@ -7,8 +7,7 @@ use App\Models\User;
 class Payer
 {
 
-    public function isShopkeeper(User $payer)
-    {
+    public function isShopkeeper(User $payer) : bool {
         try {
            
             return $payer['isShopkeeper'];
@@ -18,8 +17,7 @@ class Payer
         }
     }
 
-    public function isFundsSufficient(User $payer, float $value)
-    {
+    public function isFundsSufficient(User $payer, float $value) : bool {
         try {
            
             return $payer['wallet'] > $value;

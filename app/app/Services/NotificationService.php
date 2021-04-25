@@ -2,12 +2,13 @@
 
 namespace App\Services;
 
+use App\Models\Payment;
+
 class NotificationService {
 
     const SENT = "Enviado";
 
-    public function sendNotification($payment)
-    {
+    public function sendNotification(Payment $payment) : bool {
         try{
             $url = "https://run.mocky.io/v3/b19f7b9f-9cbf-4fc6-ad22-dc30601aec04";
             $curl = curl_init();

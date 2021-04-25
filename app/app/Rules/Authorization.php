@@ -2,11 +2,12 @@
 
 namespace App\Rules;
 
+use App\Models\Payment;
+
 class Authorization
 {
     const AUTHORIZED = "Autorizado";
-    public function isPaymentAuthorized($payment)
-    {
+    public function isPaymentAuthorized(Payment $payment) : bool {
         try {
             $url = "https://run.mocky.io/v3/8fafdd68-a090-496f-8c9a-3442cf30dae6";
             $curl = curl_init();

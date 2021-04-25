@@ -13,7 +13,13 @@ class PaymentController extends Controller
     const AUTHORIZED = "Autorizado";
     const SENT = "Enviado";
 
-    public function makePayment(Request $request){
+    private PaymentService $paymentService;
+
+    public function __construct(PaymentService $paymentService) {
+        $this->paymentService = $paymentService;
+    }
+
+    public function makePayment(Request $request) {
         
         $request->validate([
             'value' => ['required', 'numeric', 'min:0.01'],
@@ -36,12 +42,11 @@ class PaymentController extends Controller
                 throw new \Exception ('Payee not found', 404);
             }
 
-            $paymentService = new PaymentService();
-            $payment = $paymentService->createPayment($payer['id'], $payee['id'], $value);
+            $payment = $this->paymentService->createPayment($payer['id'], $payee['id'], $value);
 
-            $paymentService->executePayment($payment);
+            $this->paymentService->executePayment($payment);
             
-            $paymentService->paymentDone($payment);
+            $this->paymentService->paymentDone($payment);
 
             return response()->json($payment, 200);
         } catch(\Exception $e) { 

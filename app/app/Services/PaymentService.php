@@ -16,8 +16,17 @@ class PaymentService
     const DONE = "done";
     const CREATED = "new";
     
-    public function createPayment($payerId, $payeeId, $value)
-    {
+    private UserService $userService;
+    private Authorization $authorizationRule;
+    private NotificationService $notificationService;
+
+
+    public function __construct(UserService $userService, Authorization $authorizationRule, NotificationService $notificationService) {
+        $this->userService = $userService;
+        $this->authorizationRule = $authorizationRule;
+        $this->notificationService = $notificationService;
+    }
+    public function createPayment(int $payerId, int $payeeId, float $value) : Payment {
         try{
             $payment = Payment::create([
                 "payer" => $payerId,
@@ -31,8 +40,7 @@ class PaymentService
         }
     }
 
-    public function executePayment(Payment $payment)
-    {
+    public function executePayment(Payment $payment) : void {
         try{
             $payer = User::find($payment['payer']);
             $payee = User::find($payment['payee']);
@@ -47,25 +55,21 @@ class PaymentService
                 throw new \Exception ('Insufficient Funds', 400);
             }
             
-            $authorizationRule = new Authorization();
-            if (!$authorizationRule->isPaymentAuthorized($payment)) {
+            if (!$this->authorizationRule->isPaymentAuthorized($payment)) {
                 throw new \Exception ('Unauthorized payment', 400);
             }
 
             DB::beginTransaction();
 
-            $userService = new UserService();
-            
-            $payer = $userService->subtractWallet($payer, $value);
-            $userService->updateUser($payer);
+            $payer = $this->userService->subtractWallet($payer, $value);
+            $this->userService->updateUser($payer);
 
-            $payee = $userService->addWallet($payee, $value);
-            $userService->updateUser($payee);
+            $payee = $this->userService->addWallet($payee, $value);
+            $this->userService->updateUser($payee);
 
             DB::commit();
             
-            $notificationService = new NotificationService();
-            $notificationService->sendNotification($payment);
+            $this->notificationService->sendNotification($payment);
 
         } catch(\Exception $e){
             DB::rollBack();
@@ -73,8 +77,7 @@ class PaymentService
         }
     }
 
-    public function paymentFail(Payment $payment)
-    {
+    public function paymentFail(Payment $payment) : void {
         try{
             $paymentInfo = [
                 "payer" => $payment['payer'],
@@ -88,8 +91,7 @@ class PaymentService
         }
     }
 
-    public function paymentDone(Payment $payment)
-    {
+    public function paymentDone(Payment $payment) : void {
         try{
             $paymentInfo = [
                 "payer" => $payment['payer'],

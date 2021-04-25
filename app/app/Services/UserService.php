@@ -6,7 +6,7 @@ use App\Models\User;
 
 class UserService 
 {
-    public function updateUser($user){
+    public function updateUser($user) : void {
         try{
             $updatedUser = User::find($user['id']);
             $userInfo = [
@@ -22,7 +22,7 @@ class UserService
         }
     }
 
-    public function addWallet($user, $value){
+    public function addWallet(User $user, float $value) : User {
         try{
             $userAdded = User::find($user['id']);
             $userAdded['wallet'] += $value;
@@ -34,7 +34,7 @@ class UserService
 
     }
 
-    public function subtractWallet($user, $value){
+    public function subtractWallet(User $user, float $value) : User {
         try{
             $userSubtracted = User::find($user['id']);
             $userSubtracted['wallet'] -= $value;
